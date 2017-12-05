@@ -14,7 +14,8 @@ class App extends Component {
 
     this.state = {
       vehiclesToDisplay: [],
-      buyersToDisplay: []
+      buyersToDisplay: [],
+      baseUrl: "https://joes-autos.herokuapp.com"
     }
 
     this.getVehicles = this.getVehicles.bind(this);
@@ -29,35 +30,50 @@ class App extends Component {
     this.byYear = this.byYear.bind(this);
   }
 
-  getVehicles() {
-    // axios (GET)
-    // setState with response -> vehiclesToDisplay
-  }
+  
+    getVehicles() {
+      // axios (GET)
+      // setState with response -> vehiclesToDisplay
+      axios.get(`${this.state.baseUrl}/api/vehicles`).then(response => {
+        //console.log(response.data);
+        this.setState({ vehiclesToDisplay: response.data });
+      });
+    }
 
   getPotentialBuyers() {
-    // axios (GET)
+    axios.get(`${this.state.baseUrl}/api/buyers`).then(response => {
+      this.setState( { buyersToDisplay: response.data })
+    });
     // setState with response -> buyersToDisplay
   }
 
   sellCar(id) {
     // axios (DELETE)
+    axios.delete(`${this.state.baseUrl}/api/vehicles/${id}`).then(response => {
+      this.setState( { vehiclesToDisplay: response.data })
+    });
     // setState with response -> vehiclesToDisplay
   }
 
   filterByMake() {
     let make = this.refs.selectedMake.value
     // axios (GET)
+    axios.get(`${this.state.baseUrl}/api/vehicles?make=ford`).then(response => {
+      this.setState( { vehiclesToDisplay: response.data.vehicles })
+    });
     // setState with response -> vehiclesToDisplay
   }
 
   filterByColor() {
     let color = this.refs.selectedColor.value;
     // axios (GET)
+    axios.get(`${this.state.baseUrl}/api/vehicles?color=${color}`).then(response => this.setState({ vehiclesToDisplay: response.data }));
     // setState with response -> vehiclesToDisplay
   }
 
-  updatePrice(priceChange) {
+  updatePrice(priceChange, id) {
     // axios (PUT)
+    axios.put(`${ this.state.baseUrl}/api/vehicles/${id}/${priceChange}`).then(response => this.setState( { vehiclesToDisplay: response.data.price }));
     // setState with response -> vehiclesToDisplay
   }
 
@@ -70,6 +86,7 @@ class App extends Component {
     price: this.refs.price.value
   }  
   // axios (POST)
+  axios.post(`${ this.state.baseUrl}/api/vehicles`, newCar).then(response => this.setState({ vehiclesToDisplay: response.data.vehicles }));
   // setState with response -> vehiclesToDisplay
 }
 
@@ -80,18 +97,24 @@ addBuyer() {
     address: this.refs.address.value
   }
   //axios (POST)
-  // setState with response -> buyersToDisplay
+  axios.post(`${ this.state.baseUrl }/api/buyers/`, newBuyer).then(response => {
+    console.log(response)
+   this.setState({ buyersToDisplay: response.data.buyers })
+  }) // setState with response -> buyersToDisplay
 }
 
 nameSearch() {
   // axios (GET)
   // setState with response -> buyersToDisplay
   let searchLetters = this.refs.searchLetters.value;
+
+  axios.get(`${this.state.baseUrl}/api/buyers?name=${searchLetters}`).then(response => this.setState({ buyersToDisplay: response.data }))
 }
 
 byYear() {
   let year = this.refs.searchYear.value;
   // axios (GET)
+  axios.get(`${this.state.baseUrl}/api/year=${year}`).then(response => this.setState({ searchYear: response.data }))
   // setState with response -> vehiclesToDisplay
 }
 
